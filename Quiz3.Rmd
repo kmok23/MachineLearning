@@ -15,20 +15,28 @@ data(segmentationOriginal)
 library(caret)
 ```
 
-1. Subset the data to a training set and testing set based on the Case variable in the data set. 
-2. Set the seed to 125 and fit a CART model with the rpart method using all predictor variables and default caret settings. 
+1. Subset the data to a training set and testing set based on the Case variable in the data set.
+
+```{r}
+trainIndex <- segmentationOriginal$Case == "Train"
+training <- segmentationOriginal[trainIndex, ]
+testing <- segmentationOriginal[!trainIndex, ]
+```
+
+2. Set the seed to 125 and fit a CART model with the rpart method using all predictor variables and default caret settings.
+
+```{r, cache=TRUE}
+set.seed(125)
+modelFit <- train(Class ~ ., method = "rpart", data = training)
+```
+
 3. In the final model what would be the final model prediction for cases with the following variable values:
    a. TotalIntench2 = 23,000; FiberWidthCh1 = 10; PerimStatusCh1 = 2 
    b. TotalIntench2 = 50,000; FiberWidthCh1 = 10; VarIntenCh4 = 100 
    c. TotalIntench2 = 57,000; FiberWidthCh1 = 8; VarIntenCh4 = 100 
    d. FiberWidthCh1 = 8;VarIntenCh4 = 100; PerimStatusCh1 = 2 
 
-```{r}
-set.seed(125)
-trainIndex <- createDataPartition(segmentationOriginal$Case,list=FALSE)
-training <- segmentationOriginal[trainIndex, ]
-testing <- segmentationOriginal[-trainIndex, ]
-modelFit <- train(Class ~ ., method = "rpart", data = training)
+```{r, cache=TRUE}
 plot(modelFit$finalModel, uniform = TRUE, main = "Classification Tree")
 text(modelFit$finalModel, use.n = TRUE, all = TRUE, cex = .7)
 
@@ -118,6 +126,11 @@ The caret package uses by default the Gini importance. Calculate the variable
 importance using the varImp function in the caret package. What is the order of 
 variable importance?
 
-```{r}
+```{r, cache=TRUE}
+library(randomForest)
+vowel.train$y <- as.factor(vowel.train$y)
+vowel.test$y <- as.factor(vowel.test$y)
 set.seed(33833)
+modelFit <- randomForest(y ~ ., data = vowel.train, importance = FALSE)
+order(varImp(modelFit), decreasing = TRUE)
 ```
