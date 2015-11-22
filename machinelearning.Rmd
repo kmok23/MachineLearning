@@ -1,24 +1,47 @@
 ---
-title: "machinelearning"
-author: "kmok23"
+title: "Machine Learning - Exercise Activity Prediction"
+author: "Kent Mok"
 date: "November 12, 2015"
 output: html_document
 ---
 
-```{r, cache=TRUE}
-# Load data
-library(RCurl)
-if (!exists("trainraw")) {  # Checks if data has been populated
-    trainurl <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
-#    download.file(trainurl, "pml-training.csv", method = "curl")
-    trainraw <- read.csv("pml-training.csv")
-}
-if (!exists("testraw")) {  # Checks if data has been populated
-    testurl <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
-#    download.file(testurl, "pml-testing.csv", method = "curl")
-    testraw <- read.csv("pml-testing.csv")
+#Summary
+
+#Load Data and Packages
+```{r load_data}
+# Load packages
+Installed <- require("caret")
+if (!Installed) {
+    install.packages("caret")
+    library("caret")
 }
 
+Installed <- require("randomForest")
+if (!Installed) {
+    install.packages("randomForest")
+    library("randomForest")
+}
+
+# Load data
+if (!file.exists("pml-training.csv")) {  # Checks if file has been downloaded
+    trainurl <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+    download.file(trainurl, "pml-training.csv", method = "curl")
+}
+if (!file.exists("pml-testing.csv")) {  # Checks if file has been downloaded
+    testurl <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+    download.file(testurl, "pml-testing.csv", method = "curl")
+}
+# Read data from files
+trainraw <- read.csv("pml-training.csv")
+testraw <- read.csv("pml-testing.csv")
+
+# Set seed for repeatability
+set.seed(12345)
+```
+
+#Trim Data
+```{r trim_data}
+# Create empty data frame to store variable names and missing value counts
 missingVals <- data.frame(Variable = character(),
                           Missing = integer(),
                           stringsAsFactors = FALSE)
@@ -30,51 +53,55 @@ for (i in 1:dim(trainraw)[2]) {
     # Count NA values
     missingVals[i, 2] <- missingVals[i, 2] + sum(is.na(trainraw[, i]))
 }
-
-missingValTest <- data.frame(Variable = character(),
-                          Missing = integer(),
-                          stringsAsFactors = FALSE)
-for (i in 1:dim(testraw)[2]) {
-    # Take name of variable
-    missingValTest[i, 1] <- names(testraw)[i]
-    # Count empty values
-    missingValTest[i, 2] <- sum(testraw[, i] == "", na.rm = TRUE)
-    # Count NA values
-    missingValTest[i, 2] <- missingValTest[i, 2] + sum(is.na(testraw[, i]))
-}
-
 # Remove variables with missing data
 newtrain <- trainraw[, which(missingVals[, 2] == 0)]
+
+# Remove variables that are not predictors to the outcome
 varToRemove <- names(newtrain) %in% c("X", "user_name", "raw_timestamp_part_1",
                                       "raw_timestamp_part_2", "cvtd_timestamp",
                                       "new_window", "num_window")
 traindata <- newtrain[!varToRemove]
-library(caret)
+
 corMatrix <- cor(traindata[,1:52])
 highCor <- findCorrelation(corMatrix, cutoff = 0.75)
-print(highCor)
+```
 
+#Predictive Model
+```{r predictive_model, cache=TRUE}
 # Split the training set into 70/30 training-validation sets
-inTrain <- createDataPartition(traindata$classe, p = .7, list = FALSE)
-trainMod <- traindata[inTrain,]
-validMod <- traindata[-inTrain,]
+inTrain <- createDataPartition(traindata$classe, p = 0.7, list = FALSE)
+trainSet <- traindata[inTrain,]
+validSet <- traindata[-inTrain,]
 
-library(randomForest)
-modelFitRF <- randomForest(classe ~ ., data = trainMod)
-validationPredRF <- predict(modelFitRF, validMod)
-confusionMatrix(validationPredRF, validMod$classe)
+modelFitRF <- randomForest(classe ~ ., data = trainSet)
+predictionRF <- predict(modelFitRF, validSet)
+confMatrix <- confusionMatrix(predictionRF, validSet$classe)
+# Accuracy can be found as confMat$overall[1]
+```
 
+#Out of Sample Error
+
+The expected out-of-sample error is $1-accuracy$ in the cross-validation data. Accuracy is the number of correctly classified observations divided by total observations in the cross-validation data set (validSet). Therefore, the expected out-of-sample error will be $1-\frac{Observations_{correct}}{Observations_{total}} = 1 - Accuracy_validSet$.
+
+```{r OOS_error}
+OOSerror <- sum(predictionRF != validSet$classe) / length(validSet$classe)
+print(OOSerror)
+```
+
+#Project Prediction Submission
+```{r project_submission}
 # Perform prediction
 finalPrediction <- predict(modelFitRF, testraw, type = "class")
+#finalPrediction
 
-pml_write_files = function(x) {
-    n = length(x)
-    for(i in 1:n) {
-        filename = paste0("problem_id_",i,".txt")
-        write.table(x[i], file = filename, quote = FALSE, row.names = FALSE,
-                    col.names = FALSE)
-    }
-}
-pml_write_files(finalPrediction)
+#pml_write_files = function (x) {
+#    n = length(x)
+#    for (i in 1:n) {
+#        filename = paste0("problem_id_",i,".txt")
+#        write.table(x[i], file = filename, quote = FALSE, row.names = FALSE,
+#                    col.names = FALSE)
+#    }
+#}
+#pml_write_files(finalPrediction)
 ```
 
