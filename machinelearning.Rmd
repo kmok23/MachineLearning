@@ -6,6 +6,16 @@ output: html_document
 ---
 
 #Summary
+<<<<<<< HEAD
+=======
+This Exercise Activity Prediction project is a study on human activity recognition. The goal of the project is to use data taken during an exercise motion to develop a model that can be used to predict how the same exercise is done in the future. The particular data for this project is for a Unilateral Dumbbell Bicep Curl. The data was gathered from accelerometers on the belt, forearm, arm, and dumbell of six participants.
+
+The participants were asked to perform the exercise exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E). The data contains an output factor variable `t classe` to identify these five ways the exercise is done.
+
+More information about the original project can be found [here](http://groupware.les.inf.puc-rio.br/har) (Weight Lifting Exercise Dataset).
+
+This project studies the model creation and prediction using cross-validation. Data from the experiment was provided for model training and cross validation. The training data for this project is available [here](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv). In addition, test data with 20 observations were provided to evaluate the model. The results of the predictions for the test data were submitted as output for the project. The test data is available [here](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv).
+>>>>>>> gh-pages
 
 #Load Data and Packages
 ```{r load_data}
