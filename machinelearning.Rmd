@@ -83,17 +83,21 @@ validSet <- traindata[-inTrain,]
 modelFitRF <- randomForest(classe ~ ., data = trainSet)
 predictionRF <- predict(modelFitRF, validSet)
 confMatrix <- confusionMatrix(predictionRF, validSet$classe)
-# Accuracy can be found as confMat$overall[1]
+# Accuracy can be found as confMatrix$overall[1]
 ```
 
 #Out of Sample Error
 
-The expected out-of-sample error is $1-accuracy$ in the cross-validation data. Accuracy is the number of correctly classified observations divided by total observations in the cross-validation data set (validSet). Therefore, the expected out-of-sample error will be $1-\frac{Observations_{correct}}{Observations_{total}} = 1 - Accuracy_validSet$.
+The expected out-of-sample error is $1-accuracy$ in the cross-validation data. Accuracy is the number of correctly classified observations divided by total observations in the cross-validation data set (validSet). Therefore, the expected out-of-sample error will be $1-\frac{Observations_{correct}}{Observations_{total}} = 1 - Accuracy_{validSet}$.
 
 ```{r OOS_error}
 OOSerror <- sum(predictionRF != validSet$classe) / length(validSet$classe)
-print(OOSerror)
 ```
+
+The out-of-sample error calculated from the model prediction is 
+**`r round(OOSerror, 5)`**. The accuracy from the confusion matrix was found as 
+**`r round(confMatrix$overall[1], 5)`**. This matches the expected out-of-sample
+error.
 
 #Project Prediction Submission
 ```{r project_submission}
