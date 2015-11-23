@@ -99,20 +99,24 @@ The out-of-sample error calculated from the model prediction is
 **`r round(confMatrix$overall[1], 5)`**. This matches the expected out-of-sample
 error.
 
+***
+
 #Project Prediction Submission
+
+The script below runs the prediction with the test data as provided for the
+project. There are 20 observations to use for predicting 20 outcomes. The script
+creates a unique text file for each of the 20 outcomes.
 ```{r project_submission}
 # Perform prediction
 finalPrediction <- predict(modelFitRF, testraw, type = "class")
-#finalPrediction
 
-#pml_write_files = function (x) {
-#    n = length(x)
-#    for (i in 1:n) {
-#        filename = paste0("problem_id_",i,".txt")
-#        write.table(x[i], file = filename, quote = FALSE, row.names = FALSE,
-#                    col.names = FALSE)
-#    }
-#}
-#pml_write_files(finalPrediction)
+pml_write_files = function (x) {
+    n = length(x)
+    for (i in 1:n) {
+        filename = paste0("problem_id_",i,".txt")
+        write.table(x[i], file = filename, quote = FALSE, row.names = FALSE,
+                    col.names = FALSE)
+    }
+}
+pml_write_files(finalPrediction)
 ```
-
