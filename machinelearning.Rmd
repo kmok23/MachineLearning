@@ -6,13 +6,30 @@ output: html_document
 ---
 
 #Summary
-This Exercise Activity Prediction project is a study on human activity recognition. The goal of the project is to use data taken during an exercise motion to develop a model that can be used to predict how the same exercise is done in the future. The particular data for this project is for a Unilateral Dumbbell Bicep Curl. The data was gathered from accelerometers on the belt, forearm, arm, and dumbell of six participants.
+This Exercise Activity Prediction project is a study on human activity 
+recognition. The goal of the project is to use data taken during an exercise 
+motion to develop a model that can be used to predict how the same exercise is 
+done in the future. The particular data for this project is for a Unilateral 
+Dumbbell Bicep Curl. The data was gathered from accelerometers on the belt, 
+forearm, arm, and dumbell of six participants.
 
-The participants were asked to perform the exercise exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E). The data contains an output factor variable `classe` to identify these five ways the exercise is done.
+The participants were asked to perform the exercise exactly according to the 
+specification (Class A), throwing the elbows to the front (Class B), lifting 
+the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class 
+D) and throwing the hips to the front (Class E). The data contains an output 
+factor variable `classe` to identify these five ways the exercise is done.
 
-More information about the original project can be found [here](http://groupware.les.inf.puc-rio.br/har) (Weight Lifting Exercise Dataset).
+More information about the original project can be found 
+[here](http://groupware.les.inf.puc-rio.br/har) (Weight Lifting Exercise 
+Dataset).
 
-This project studies the model creation and prediction using cross-validation. Data from the experiment was provided for model training and cross validation. The training data for this project is available [here](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv). In addition, test data with 20 observations were provided to evaluate the model. The results of the predictions for the test data were submitted as output for the project. The test data is available [here](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv).
+This project studies the model creation and prediction using cross-validation. 
+Data from the experiment was provided for model training and cross validation. 
+The training data for this project is available [here](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv). 
+In addition, test data with 20 observations were provided to evaluate the model.
+The results of the predictions for the test data were submitted as output for 
+the project. The test data is available 
+[here](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv).
 
 #Load Data and Packages
 ```{r load_data, message=FALSE}
@@ -93,24 +110,34 @@ dim(traindata)
 ```
 
 #Predictive Model
-```{r predictive_model, cache=TRUE}
+In order to perform the cross validation, the training data provided is split
+into two smaller data subsets. One is used to train the model, and the other is 
+used to test and cross validate the model. The proportion of data used is 70% 
+for training and 30% for testing.
+```{r cross_validation}
 # Split the training set into 70/30 training-validation sets
 inTrain <- createDataPartition(traindata$classe, p = 0.7, list = FALSE)
 trainSet <- traindata[inTrain,]
-validSet <- traindata[-inTrain,]
-
+testSet <- traindata[-inTrain,]
+```
+The Random Forest method is used for its accuracy at the cost of efficiency.
+```{r predictive_model, cache=TRUE}
 modelFitRF <- randomForest(classe ~ ., data = trainSet)
-predictionRF <- predict(modelFitRF, validSet)
-confMatrix <- confusionMatrix(predictionRF, validSet$classe)
+predictionRF <- predict(modelFitRF, testSet)
+confMatrix <- confusionMatrix(predictionRF, testSet$classe)
 # Accuracy can be found as confMatrix$overall[1]
 ```
 
 #Out of Sample Error
 
-The expected out-of-sample error is $1-accuracy$ in the cross-validation data. Accuracy is the number of correctly classified observations divided by total observations in the cross-validation data set (validSet). Therefore, the expected out-of-sample error will be $1-\frac{Observations_{correct}}{Observations_{total}} = 1 - Accuracy_{validSet}$.
+The expected out-of-sample error is $1-accuracy$ in the cross-validation data. 
+Accuracy is the number of correctly classified observations divided by total 
+observations in the cross-validation data set (testSet). Therefore, the expected 
+out-of-sample error will be 
+$1-\frac{Observations_{correct}}{Observations_{total}} = 1 - Accuracy_{testSet}$.
 
 ```{r OOS_error}
-OOSerror <- sum(predictionRF != validSet$classe) / length(validSet$classe)
+OOSerror <- sum(predictionRF != testSet$classe) / length(testSet$classe)
 ```
 
 The out-of-sample error calculated from the model prediction is 
