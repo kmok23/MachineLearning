@@ -15,7 +15,7 @@ More information about the original project can be found [here](http://groupware
 This project studies the model creation and prediction using cross-validation. Data from the experiment was provided for model training and cross validation. The training data for this project is available [here](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv). In addition, test data with 20 observations were provided to evaluate the model. The results of the predictions for the test data were submitted as output for the project. The test data is available [here](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv).
 
 #Load Data and Packages
-```{r load_data}
+```{r load_data, message=FALSE}
 # Load packages
 Installed <- require("caret")
 if (!Installed) {
