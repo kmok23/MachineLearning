@@ -78,20 +78,14 @@ img {
 <div id="load-data-and-packages" class="section level1">
 <h1>Load Data and Packages</h1>
 <pre class="r"><code># Load packages
-Installed &lt;- require(&quot;caret&quot;)</code></pre>
-<pre><code>## Loading required package: caret
-## Loading required package: lattice
-## Loading required package: ggplot2</code></pre>
-<pre class="r"><code>if (!Installed) {
+Installed &lt;- require(&quot;caret&quot;)
+if (!Installed) {
     install.packages(&quot;caret&quot;)
     library(&quot;caret&quot;)
 }
 
-Installed &lt;- require(&quot;randomForest&quot;)</code></pre>
-<pre><code>## Loading required package: randomForest
-## randomForest 4.6-12
-## Type rfNews() to see new features/changes/bug fixes.</code></pre>
-<pre class="r"><code>if (!Installed) {
+Installed &lt;- require(&quot;randomForest&quot;)
+if (!Installed) {
     install.packages(&quot;randomForest&quot;)
     library(&quot;randomForest&quot;)
 }
