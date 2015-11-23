@@ -142,14 +142,13 @@ validSet &lt;- traindata[-inTrain,]
 modelFitRF &lt;- randomForest(classe ~ ., data = trainSet)
 predictionRF &lt;- predict(modelFitRF, validSet)
 confMatrix &lt;- confusionMatrix(predictionRF, validSet$classe)
-# Accuracy can be found as confMat$overall[1]</code></pre>
+# Accuracy can be found as confMatrix$overall[1]</code></pre>
 </div>
 <div id="out-of-sample-error" class="section level1">
 <h1>Out of Sample Error</h1>
-<p>The expected out-of-sample error is <span class="math">\(1-accuracy\)</span> in the cross-validation data. Accuracy is the number of correctly classified observations divided by total observations in the cross-validation data set (validSet). Therefore, the expected out-of-sample error will be <span class="math">\(1-\frac{Observations_{correct}}{Observations_{total}} = 1 - Accuracy_validSet\)</span>.</p>
-<pre class="r"><code>OOSerror &lt;- sum(predictionRF != validSet$classe) / length(validSet$classe)
-print(OOSerror)</code></pre>
-<pre><code>## [1] 0.007986406</code></pre>
+<p>The expected out-of-sample error is <span class="math">\(1-accuracy\)</span> in the cross-validation data. Accuracy is the number of correctly classified observations divided by total observations in the cross-validation data set (validSet). Therefore, the expected out-of-sample error will be <span class="math">\(1-\frac{Observations_{correct}}{Observations_{total}} = 1 - Accuracy_{validSet}\)</span>.</p>
+<pre class="r"><code>OOSerror &lt;- sum(predictionRF != validSet$classe) / length(validSet$classe)</code></pre>
+<p>The out-of-sample error calculated from the model prediction is <strong>0.00697</strong>. The accuracy from the confusion matrix was found as <strong>0.99303</strong>. This matches the expected out-of-sample error.</p>
 </div>
 <div id="project-prediction-submission" class="section level1">
 <h1>Project Prediction Submission</h1>
