@@ -46,8 +46,18 @@ testraw <- read.csv("pml-testing.csv")
 set.seed(12345)
 ```
 
-#Trim Data
-```{r trim_data}
+#Clean Data
+
+The original raw data as downloaded contains 160 variables. The variables 
+consist of information about the user including identifier and name as well as 
+time stamps in addition to the accelerometer measurements and outcome. The 
+miscellaneous variables account for seven of the 160 variables.
+
+Of the remaining 153 variables, one is the outcome and a large portion of the 
+remaining accelerometer measurement variables had NA values for a majority of 
+their observations. These were removed as they do not provide anything for the 
+model training.
+```{r trim_empty_data}
 # Create empty data frame to store variable names and missing value counts
 missingVals <- data.frame(Variable = character(),
                           Missing = integer(),
@@ -62,15 +72,24 @@ for (i in 1:dim(trainraw)[2]) {
 }
 # Remove variables with missing data
 newtrain <- trainraw[, which(missingVals[, 2] == 0)]
+dim(newtrain)
+```
 
+After removing the variables with empty or mostly empty observations, there were
+60 remaining variables. The miscellaneous variables are then removed to cull the
+total to 53.
+
+```{r trim_misc_data}
 # Remove variables that are not predictors to the outcome
 varToRemove <- names(newtrain) %in% c("X", "user_name", "raw_timestamp_part_1",
                                       "raw_timestamp_part_2", "cvtd_timestamp",
                                       "new_window", "num_window")
 traindata <- newtrain[!varToRemove]
+dim(traindata)
 
-corMatrix <- cor(traindata[,1:52])
-highCor <- findCorrelation(corMatrix, cutoff = 0.75)
+# Correlation could be used to remove even more variables
+#corMatrix <- cor(traindata[,1:52])
+#highCor <- findCorrelation(corMatrix, cutoff = 0.75)
 ```
 
 #Predictive Model
