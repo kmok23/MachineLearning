@@ -75,6 +75,10 @@ remaining accelerometer measurement variables had NA values for a majority of
 their observations. These were removed as they do not provide anything for the 
 model training.
 ```{r trim_empty_data}
+=======
+#Trim Data
+The data set consists of some time stamps
+```{r trim_data}
 # Create empty data frame to store variable names and missing value counts
 missingVals <- data.frame(Variable = character(),
                           Missing = integer(),

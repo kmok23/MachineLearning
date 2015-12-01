@@ -71,20 +71,97 @@ is the resulting accuracy on the test set? Is it better or worse than each of
 the individual predictions?
 
 ```{r answer_2, cache=TRUE}
-set.seed(33833)
-modelRF <- train(diagnosis ~ ., data = training, model = "rf")
+set.seed(62433)
+modelRF <- train(diagnosis ~ ., data = training, method = "rf")
 predictionRF <- predict(modelRF, testing)
 confusionRF <- confusionMatrix(predictionRF, testing$diagnosis)
 
-modelGBM <- train(diagnosis ~ ., data = training, model = "gbm")
+modelGBM <- train(diagnosis ~ ., data = training, method = "gbm",
+                  verbose = FALSE)
 predictionGBM <- predict(modelGBM, testing)
 confusionGBM <- confusionMatrix(predictionGBM, testing$diagnosis)
 
-modelLDA <- train(diagnosis ~ ., data = training, model = "lda")
+modelLDA <- train(diagnosis ~ ., data = training, method = "lda")
 predictionLDA <- predict(modelLDA, testing)
 confusionLDA <- confusionMatrix(predictionLDA, testing$diagnosis)
+
+predDF <- data.frame(predictionRF, 
+                     predictionGBM, 
+                     predictionLDA, 
+                     diagnosis = testing$diagnosis)
+modelComb <- train(diagnosis ~ ., data = predDF, method = "rf")
+predictionComb <- predict(modelComb, testing)
+confusionComb <- confusionMatrix(predictionComb, testing$diagnosis)
 
 print(confusionRF$overall[1])
 print(confusionGBM$overall[1])
 print(confusionLDA$overall[1])
+print(confusionComb$overall[1])
+```
+
+#Question 3
+
+Load the concrete data with the commands:
+```{r question_3}
+set.seed(3523)
+library(AppliedPredictiveModeling)
+data(concrete)
+inTrain = createDataPartition(concrete$CompressiveStrength, p = 3/4)[[1]]
+training = concrete[ inTrain,]
+testing = concrete[-inTrain,]
+```
+Set the seed to 233 and fit a lasso model to predict Compressive Strength. Which
+variable is the last coefficient to be set to zero as the penalty increases?
+(Hint: it may be useful to look up ?plot.enet).
+```{r answer_3, cache=TRUE}
+set.seed(233)
+library(elasticnet)
+modelLasso <- train(CompressiveStrength ~ ., data = training, method = "lasso")
+predictionLasso <- predict(modelLasso, testing)
+plot.enet(modelLasso$finalModel, xvar = "penalty", use.color = TRUE)
+```
+  
+The last coefficient to be set to zero as the penalty increases is: *Cement*.
+
+#Question 4
+Load the data on the number of visitors to the instructors blog from here: 
+https://d396qusza40orc.cloudfront.net/predmachlearn/gaData.csv
+
+Using the commands:
+```{r question_4}
+library(lubridate)  # For year() function below
+dat = read.csv("gaData.csv")
+training = dat[year(dat$date) < 2012,]
+testing = dat[(year(dat$date)) > 2011,]
+tstrain = ts(training$visitsTumblr)
+```
+Fit a model using the bats() function in the forecast package to the training 
+time series. Then forecast this model for the remaining time points. For how 
+many of the testing points is the true value within the 95% prediction interval
+bounds?
+```{r answer_4}
+modelTS <- bats(tstrain)
+forecastTS <- forecast.bats(modelTS, h = nrow(testing), level = 95)
+sum((forecastTS$lower < testing$visitsTumblr) & 
+        (testing$visitsTumblr < forecastTS$upper)) / nrow(testing)
+```
+
+#Question 5
+Load the concrete data with the commands:
+```{r question_5}
+set.seed(3523)
+library(AppliedPredictiveModeling)
+data(concrete)
+inTrain = createDataPartition(concrete$CompressiveStrength, p = 3/4)[[1]]
+training = concrete[ inTrain,]
+testing = concrete[-inTrain,]
+```
+Set the seed to 325 and fit a support vector machine using the e1071 package to
+predict Compressive Strength using the default settings. Predict on the testing
+set. What is the RMSE?
+```{r answer_5, cache=TRUE}
+set.seed(325)
+modelSVM <- svm(CompressiveStrength ~ .,data = training)
+predictionSVM <- predict(modelSVM, testing)
+accuracy(predictionSVM, testing$CompressiveStrength)
 ```
